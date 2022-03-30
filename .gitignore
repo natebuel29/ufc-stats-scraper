@@ -65,8 +65,8 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 
-# Scrapy stuff:
-.scrapy
+# Scrapy stuff:  Will we want this stuff ignored
+.scrapy 
 
 # Sphinx documentation
 docs/_build/
