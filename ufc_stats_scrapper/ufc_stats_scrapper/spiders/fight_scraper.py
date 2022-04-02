@@ -19,36 +19,48 @@ class UfcFightSpider(scrapy.Spider):
     bf_index = 1
 
     def parse(self, response):
+        # stats_list = response.css(
+        #     "section.b-fight-details__section table tbody td.b-fight-details__table-col p.b-fight-details__table-text::text").getall()
         stats_list = response.css(
-            "section.b-fight-details__section table tbody td.b-fight-details__table-col p.b-fight-details__table-text::text").getall()
+            "tbody.b-fight-details__table-body td p ::text").getall()
         stats_list = list(map(str.strip, stats_list))
         # while '---' in stats_list:
         #     stats_list.remove('---')
         while "" in stats_list:
             stats_list.remove("")
         np_stats = np.array(stats_list)
-        stats_matrix = np.reshape(np_stats, (43, 2))
+        stats_matrix = np.reshape(np_stats, (57, 2))
 
-        fighter_names_array = response.css(
-            "section.b-fight-details__section table tbody td.b-fight-details__table-col p.b-fight-details__table-text a::text").getall()
-        red_fighter = fighter_names_array[0]
-        blue_fighter = fighter_names_array[1]
-        rkd = int(stats_matrix[0][0])
-        bkd = int(stats_matrix[0][1])
+        red_fighter = stats_matrix[0][0]
+        blue_fighter = stats_matrix[0][1]
+        rkd = int(stats_matrix[1][0])
+        bkd = int(stats_matrix[1][1])
         rsigstrper = int(self.check_null(
-            stats_matrix[2][0]).replace("%", ""))/100
+            stats_matrix[3][0]).replace("%", ""))/100
         bsigstrper = int(self.check_null(
-            stats_matrix[2][1]).replace("%", ""))/100
-        rtotstrper = self.compute_percentage(stats_matrix[3][0])
-        btotstrper = self.compute_percentage(stats_matrix[3][1])
-        rtdper = int(self.check_null(stats_matrix[5][0]))
-        btdper = int(self.check_null(stats_matrix[5][1]))
-        rsubatt = int(self.check_null(stats_matrix[6][0]))
-        bsubatt = int(self.check_null(stats_matrix[6][1]))
-        rrev = int(self.check_null(stats_matrix[7][0]))
-        brev = int(self.check_null(stats_matrix[7][1]))
-        rctrl = self.convert_minutes_to_seconds(stats_matrix[8][0])
-        bctrl = self.convert_minutes_to_seconds(stats_matrix[8][1])
+            stats_matrix[3][1]).replace("%", ""))/100
+        rtotstrper = self.compute_percentage(stats_matrix[4][0])
+        btotstrper = self.compute_percentage(stats_matrix[4][1])
+        rtdper = int(self.check_null(stats_matrix[6][0]))
+        btdper = int(self.check_null(stats_matrix[6][1]))
+        rsubatt = int(self.check_null(stats_matrix[7][0]))
+        bsubatt = int(self.check_null(stats_matrix[7][1]))
+        rrev = int(self.check_null(stats_matrix[8][0]))
+        brev = int(self.check_null(stats_matrix[8][1]))
+        rctrl = self.convert_minutes_to_seconds(stats_matrix[9][0])
+        bctrl = self.convert_minutes_to_seconds(stats_matrix[9][1])
+        rhstrper = self.compute_percentage(stats_matrix[33][0])
+        bhstrper = self.compute_percentage(stats_matrix[33][1])
+        rbstrper = self.compute_percentage(stats_matrix[34][0])
+        bbstrper = self.compute_percentage(stats_matrix[34][1])
+        rlstrper = self.compute_percentage(stats_matrix[35][0])
+        blstrper = self.compute_percentage(stats_matrix[35][1])
+        rdper = self.compute_percentage(stats_matrix[36][0])
+        bdper = self.compute_percentage(stats_matrix[36][1])
+        rclper = self.compute_percentage(stats_matrix[37][0])
+        bclper = self.compute_percentage(stats_matrix[37][1])
+        rgrdper = self.compute_percentage(stats_matrix[38][0])
+        bgrdper = self.compute_percentage(stats_matrix[38][1])
 
         print(f"red fighter is {red_fighter}")
         print(f"blue fighter is {blue_fighter}")
@@ -66,10 +78,24 @@ class UfcFightSpider(scrapy.Spider):
         print(f"brev is {brev}")
         print(f"rctrl is {rctrl}")
         print(f"bctrl is {bctrl}")
+        print(f"rhstrper is {rhstrper}")
+        print(f"bhstrper is {bhstrper}")
+        print(f"rbstrper is {rbstrper}")
+        print(f"bbstrper is {bbstrper}")
+        print(f"rlstrper is {rlstrper}")
+        print(f"blstrper is {blstrper}")
+        print(f"rdper is {rdper}")
+        print(f"bdper is {bdper}")
+        print(f"rclper is {rclper}")
+        print(f"bclper is {bclper}")
+        print(f"rgrdper is {rgrdper}")
+        print(f"bgrdper is {bgrdper}")
         print(stats_matrix)
 
     def compute_percentage(self, stat):
         results = stat.split(" of ")
+        if int(results[1]) == 0:
+            return 0
         return round(int(results[0])/int(results[1]), 2)
 
     def check_null(self, stat):
