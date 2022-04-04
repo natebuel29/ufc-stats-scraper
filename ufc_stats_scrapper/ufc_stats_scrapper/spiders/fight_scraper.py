@@ -19,34 +19,51 @@ class UfcFightSpider(scrapy.Spider):
     bf_index = 1
 
     def parse(self, response):
-        # stats_list = response.css(
-        #     "section.b-fight-details__section table tbody td.b-fight-details__table-col p.b-fight-details__table-text::text").getall()
         stats_list = response.css(
             "tbody.b-fight-details__table-body td p ::text").getall()
-        stats_list = list(map(str.strip, stats_list))
-        # while '---' in stats_list:
-        #     stats_list.remove('---')
-        while "" in stats_list:
-            stats_list.remove("")
-        np_stats = np.array(stats_list)
-        stats_matrix = np.reshape(np_stats, (57, 2))
-
+        stats_list = self.normalize_results(stats_list)
+        winner_results = response.css(
+            "section div.b-fight-details__person i.b-fight-details__person-status ::text").getall()
+        winner_results = self.normalize_results(winner_results)
+        fdetails_results = response.css(
+            "section div.b-fight-details__fight ::text").getall()
+        fdetails_results = self.normalize_results(fdetails_results)
+        np_fdetails = np.array(fdetails_results)
+        print(fdetails_results)
+        np_stats = np.array(stats_list + winner_results)
+        stats_matrix = np.reshape(np_stats, (58, 2))
         red_fighter = stats_matrix[0][0]
         blue_fighter = stats_matrix[0][1]
         rkd = int(stats_matrix[1][0])
         bkd = int(stats_matrix[1][1])
-        rsigstrper = int(self.check_null(
+        rsigstrper = int(self.null_checlk(
             stats_matrix[3][0]).replace("%", ""))/100
-        bsigstrper = int(self.check_null(
+        bsigstrper = int(self.null_checlk(
             stats_matrix[3][1]).replace("%", ""))/100
+
+        wei_class = np_fdetails[0]
+        method = np_fdetails[2]
+        round_ = np_fdetails[4]
+        time = np_fdetails[6]
+        t_format = np_fdetails[8]
+        ref = np_fdetails[9]
+        details = np_fdetails[12]
+        print(f"wei class is {wei_class}")
+        print(f"method is {method}")
+        print(f"round_ is {round_}")
+        print(f"time is {time}")
+        print(f"t_format is {t_format}")
+        print(f"ref is {ref}")
+        print(f"details is {details}")
+
         rtotstrper = self.compute_percentage(stats_matrix[4][0])
         btotstrper = self.compute_percentage(stats_matrix[4][1])
-        rtdper = int(self.check_null(stats_matrix[6][0]))
-        btdper = int(self.check_null(stats_matrix[6][1]))
-        rsubatt = int(self.check_null(stats_matrix[7][0]))
-        bsubatt = int(self.check_null(stats_matrix[7][1]))
-        rrev = int(self.check_null(stats_matrix[8][0]))
-        brev = int(self.check_null(stats_matrix[8][1]))
+        rtdper = int(self.null_checlk(stats_matrix[6][0]))
+        btdper = int(self.null_checlk(stats_matrix[6][1]))
+        rsubatt = int(self.null_checlk(stats_matrix[7][0]))
+        bsubatt = int(self.null_checlk(stats_matrix[7][1]))
+        rrev = int(self.null_checlk(stats_matrix[8][0]))
+        brev = int(self.null_checlk(stats_matrix[8][1]))
         rctrl = self.convert_minutes_to_seconds(stats_matrix[9][0])
         bctrl = self.convert_minutes_to_seconds(stats_matrix[9][1])
         rhstrper = self.compute_percentage(stats_matrix[33][0])
@@ -61,6 +78,8 @@ class UfcFightSpider(scrapy.Spider):
         bclper = self.compute_percentage(stats_matrix[37][1])
         rgrdper = self.compute_percentage(stats_matrix[38][0])
         bgrdper = self.compute_percentage(stats_matrix[38][1])
+        rwin = 1 if stats_matrix[57][0] == 'W' else 0
+        bwin = 1 if stats_matrix[57][1] == 'W' else 0
 
         print(f"red fighter is {red_fighter}")
         print(f"blue fighter is {blue_fighter}")
@@ -90,6 +109,8 @@ class UfcFightSpider(scrapy.Spider):
         print(f"bclper is {bclper}")
         print(f"rgrdper is {rgrdper}")
         print(f"bgrdper is {bgrdper}")
+        print(f"rwin is {rwin}")
+        print(f"bwin is {bwin}")
         print(stats_matrix)
 
     def compute_percentage(self, stat):
@@ -98,15 +119,28 @@ class UfcFightSpider(scrapy.Spider):
             return 0
         return round(int(results[0])/int(results[1]), 2)
 
-    def check_null(self, stat):
+    def null_checlk(self, stat):
         if stat == '---':
             return '0'
         else:
             return stat
 
+    def strip_scrapped_data(self, results):
+        list(map(str.strip, results))
+        while "" in results:
+            results.remove("")
+
+        return results
+
     def convert_minutes_to_seconds(self, time):
         time_list = time.split(":")
         return int(time_list[0]) * 60 + int(time_list[1])
+
+    def normalize_results(self, results):
+        normalize_list = list(map(str.strip, results))
+        while "" in normalize_list:
+            normalize_list.remove("")
+        return normalize_list
 
     # def parse(self, response):
     #     fight_event_links = response.css(
@@ -124,13 +158,3 @@ class UfcFightSpider(scrapy.Spider):
     #     with open(filename, 'wb') as f:
     #         f.write(response.body)
     #     self.log(f'Saved file {filename}')
-
-
-# -> returns fighter names response.css("section.b-fight-details__section table tbody td.b-fight-details__table-col p.b-fight-details__table-text a::text").getall()
-
-# returns fighter stats -> response.css("section.b-fight-details__section table tbody td.b-fight-details__table-col p.b-fight-details__table-text::text").getall()
-# will need to do the following things ->
-# 1. strip the strings -> stripped_list = list(map(str.strip,test_list))
-# 2. remove empty string and --- from list ->
-# while '---' in stripped_list:stripped_list.remove('---')
-# >>> while "" in stripped_list: stripped_list.remove("")
