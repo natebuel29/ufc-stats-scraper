@@ -1,45 +1,52 @@
+from os import stat
 import scrapy
 import numpy as np
 
 
 class UfcFightSpider(scrapy.Spider):
     name = "ufc_fight"
-    # response.css("table.b-fight-details__table tbody tr::attr(data-link)").getall()
-    # response.css("table.b-statistics__table-events tbody tr.b-statistics__table-row i.b-statistics__table-content a::attr(href)").getall()
-    # start_urls = [
-    #     'http://ufcstats.com/statistics/events/completed?page=all'
-    # ]
-
-    # look into scrappy items
+    # response.css(
+    #     "table.b-fight-details__table tbody tr::attr(data-link)").getall()
+    # response.css(
+    #     "table.b-statistics__table-events tbody tr.b-statistics__table-row i.b-statistics__table-content a::attr(href)").getall()
     start_urls = [
-        'http://ufcstats.com/fight-details/c4e866d9dd606faa'
+        'http://ufcstats.com/statistics/events/completed?page=all'
     ]
 
-    rf_index = 0
-    bf_index = 1
+    # start_urls = [
+    #     'http://ufcstats.com/fight-details/c4e866d9dd606faa'
+    # ]
 
     def parse(self, response):
-        stats_list = response.css(
-            "tbody.b-fight-details__table-body td p ::text").getall()
-        stats_list = self.normalize_results(stats_list)
+        fight_event_links = response.css(
+            "table.b-statistics__table-events tbody tr.b-statistics__table-row i.b-statistics__table-content a::attr(href)").getall()
+        yield from response.follow_all(fight_event_links, self.parse_fight_events)
+
+    def parse_fight_events(self, response):
+        fight_links = response.css(
+            "table.b-fight-details__table tbody tr::attr(data-link)").getall()
+        yield from response.follow_all(fight_links, self.parse_fight)
+
+    def parse_fight(self, response):
+        # red fighter data will always be in index 0 and blue fighter data will always be in index 1
+
+        # scrap the winner
         winner_results = response.css(
             "section div.b-fight-details__person i.b-fight-details__person-status ::text").getall()
         winner_results = self.normalize_results(winner_results)
+        print(winner_results)
+        r_win = 1 if winner_results[0] == 'W' else 0
+        b_win = 1 if winner_results[1] == 'W' else 0
+
+        # NEED TO SCRAP FIGHTERS NAMES
+        # red_fighter = stats_matrix[0][0]
+        # blue_fighter = stats_matrix[0][1]
+
+        # scrap fight details
         fdetails_results = response.css(
             "section div.b-fight-details__fight ::text").getall()
         fdetails_results = self.normalize_results(fdetails_results)
         np_fdetails = np.array(fdetails_results)
-        print(fdetails_results)
-        np_stats = np.array(stats_list + winner_results)
-        stats_matrix = np.reshape(np_stats, (58, 2))
-        red_fighter = stats_matrix[0][0]
-        blue_fighter = stats_matrix[0][1]
-        rkd = int(stats_matrix[1][0])
-        bkd = int(stats_matrix[1][1])
-        rsigstrper = int(self.null_checlk(
-            stats_matrix[3][0]).replace("%", ""))/100
-        bsigstrper = int(self.null_checlk(
-            stats_matrix[3][1]).replace("%", ""))/100
 
         wei_class = np_fdetails[0]
         method = np_fdetails[2]
@@ -48,70 +55,85 @@ class UfcFightSpider(scrapy.Spider):
         t_format = np_fdetails[8]
         ref = np_fdetails[9]
         details = np_fdetails[12]
-        print(f"wei class is {wei_class}")
-        print(f"method is {method}")
-        print(f"round_ is {round_}")
-        print(f"time is {time}")
-        print(f"t_format is {t_format}")
-        print(f"ref is {ref}")
-        print(f"details is {details}")
 
-        rtotstrper = self.compute_percentage(stats_matrix[4][0])
-        btotstrper = self.compute_percentage(stats_matrix[4][1])
-        rtdper = int(self.null_checlk(stats_matrix[6][0]))
-        btdper = int(self.null_checlk(stats_matrix[6][1]))
-        rsubatt = int(self.null_checlk(stats_matrix[7][0]))
-        bsubatt = int(self.null_checlk(stats_matrix[7][1]))
-        rrev = int(self.null_checlk(stats_matrix[8][0]))
-        brev = int(self.null_checlk(stats_matrix[8][1]))
-        rctrl = self.convert_minutes_to_seconds(stats_matrix[9][0])
-        bctrl = self.convert_minutes_to_seconds(stats_matrix[9][1])
-        rhstrper = self.compute_percentage(stats_matrix[33][0])
-        bhstrper = self.compute_percentage(stats_matrix[33][1])
-        rbstrper = self.compute_percentage(stats_matrix[34][0])
-        bbstrper = self.compute_percentage(stats_matrix[34][1])
-        rlstrper = self.compute_percentage(stats_matrix[35][0])
-        blstrper = self.compute_percentage(stats_matrix[35][1])
-        rdper = self.compute_percentage(stats_matrix[36][0])
-        bdper = self.compute_percentage(stats_matrix[36][1])
-        rclper = self.compute_percentage(stats_matrix[37][0])
-        bclper = self.compute_percentage(stats_matrix[37][1])
-        rgrdper = self.compute_percentage(stats_matrix[38][0])
-        bgrdper = self.compute_percentage(stats_matrix[38][1])
-        rwin = 1 if stats_matrix[57][0] == 'W' else 0
-        bwin = 1 if stats_matrix[57][1] == 'W' else 0
+        # scrap fight statistics
+        fstats_list = response.xpath(
+            '//table[@style="width: 745px"]//p/text()').getall()
+        fstats_list = self.normalize_results(fstats_list)
+        np_stats = np.array(fstats_list)
+        # convert stats array to a 17 x 2 matrix
+        stats_matrix = np.reshape(np_stats, (17, 2))
 
-        print(f"red fighter is {red_fighter}")
-        print(f"blue fighter is {blue_fighter}")
-        print(f"rkd is {rkd}")
-        print(f"bkd is {bkd}")
-        print(f"rsigstrper is {rsigstrper}")
-        print(f"bsigstrper is {bsigstrper}")
-        print(f"rtotstrper is {rtotstrper}")
-        print(f"btotstrper is {btotstrper}")
-        print(f"rtdper is {rtdper}")
-        print(f"btdper is {btdper}")
-        print(f"rsubatt is {rsubatt}")
-        print(f"bsubatt is {bsubatt}")
-        print(f"rrev is {rrev}")
-        print(f"brev is {brev}")
-        print(f"rctrl is {rctrl}")
-        print(f"bctrl is {bctrl}")
-        print(f"rhstrper is {rhstrper}")
-        print(f"bhstrper is {bhstrper}")
-        print(f"rbstrper is {rbstrper}")
-        print(f"bbstrper is {bbstrper}")
-        print(f"rlstrper is {rlstrper}")
-        print(f"blstrper is {blstrper}")
-        print(f"rdper is {rdper}")
-        print(f"bdper is {bdper}")
-        print(f"rclper is {rclper}")
-        print(f"bclper is {bclper}")
-        print(f"rgrdper is {rgrdper}")
-        print(f"bgrdper is {bgrdper}")
-        print(f"rwin is {rwin}")
-        print(f"bwin is {bwin}")
-        print(stats_matrix)
+        r_kd = int(stats_matrix[0][0])
+        b_kd = int(stats_matrix[0][1])
+        r_sigstr = int(self.null_check(
+            stats_matrix[2][0]).replace("%", ""))/100
+        b_sigstr = int(self.null_check(
+            stats_matrix[2][1]).replace("%", ""))/100
+        r_totstr = self.compute_percentage(stats_matrix[3][0])
+        b_totstr = self.compute_percentage(stats_matrix[3][1])
+        r_td = int(self.null_check(
+            stats_matrix[5][0]).replace("%", ""))/100
+        b_td = int(self.null_check(
+            stats_matrix[5][1]).replace("%", ""))/100
+        r_sub = int(self.null_check(stats_matrix[6][0]))
+        b_sub = int(self.null_check(stats_matrix[6][1]))
+        r_rev = int(self.null_check(stats_matrix[7][0]))
+        b_rev = int(self.null_check(stats_matrix[7][1]))
+        r_ctrl = self.convert_minutes_to_seconds(stats_matrix[8][0])
+        b_ctrl = self.convert_minutes_to_seconds(stats_matrix[8][1])
+        r_hstr = self.compute_percentage(stats_matrix[11][0])
+        b_hstr = self.compute_percentage(stats_matrix[11][1])
+        r_bstr = self.compute_percentage(stats_matrix[12][0])
+        b_bstr = self.compute_percentage(stats_matrix[12][1])
+        r_lstr = self.compute_percentage(stats_matrix[13][0])
+        b_lstr = self.compute_percentage(stats_matrix[13][1])
+        r_dis = self.compute_percentage(stats_matrix[14][0])
+        b_dis = self.compute_percentage(stats_matrix[14][1])
+        r_cli = self.compute_percentage(stats_matrix[15][0])
+        b_cli = self.compute_percentage(stats_matrix[15][1])
+        r_gro = self.compute_percentage(stats_matrix[16][0])
+        b_gro = self.compute_percentage(stats_matrix[16][1])
+
+        yield {
+            # 'r_fighter': red_fighter,
+            # 'b_fighter': blue_fighter,
+            'r_win': r_win,
+            'b_win': b_win,
+            'wei_class': wei_class,
+            'method': method,
+            'round': round_,
+            'time': time,
+            't_format': t_format,
+            'ref': ref,
+            'details': details,
+            'r_kd': r_kd,
+            'b_kd': b_kd,
+            'r_sigstr': r_sigstr,
+            'b_sigstr': b_sigstr,
+            'r_totstr': r_totstr,
+            'b_totstr': b_totstr,
+            'r_td': r_td,
+            'b_td': b_td,
+            'r_sub': r_sub,
+            'b_sub': b_sub,
+            'r_rev': r_rev,
+            'b_rev': b_rev,
+            'r_ctrl': r_ctrl,
+            'b_ctrl': b_ctrl,
+            'r_hstr': r_hstr,
+            'b_hstr': b_hstr,
+            'r_bstr': r_bstr,
+            'b_bstr': b_bstr,
+            'r_lstr': r_lstr,
+            'b_lstr': b_lstr,
+            'r_dis': r_dis,
+            'b_dis': b_dis,
+            'r_cli': r_cli,
+            'b_cli': b_cli,
+            'r_gro': r_gro,
+            'b_gro': b_gro
+        }
 
     def compute_percentage(self, stat):
         results = stat.split(" of ")
@@ -119,8 +141,8 @@ class UfcFightSpider(scrapy.Spider):
             return 0
         return round(int(results[0])/int(results[1]), 2)
 
-    def null_checlk(self, stat):
-        if stat == '---':
+    def null_check(self, stat):
+        if stat == '---' or '--':
             return '0'
         else:
             return stat
@@ -133,8 +155,11 @@ class UfcFightSpider(scrapy.Spider):
         return results
 
     def convert_minutes_to_seconds(self, time):
-        time_list = time.split(":")
-        return int(time_list[0]) * 60 + int(time_list[1])
+        if ':' not in time:
+            return 0
+        else:
+            time_list = time.split(":")
+            return int(time_list[0]) * 60 + int(time_list[1])
 
     def normalize_results(self, results):
         normalize_list = list(map(str.strip, results))
@@ -142,19 +167,5 @@ class UfcFightSpider(scrapy.Spider):
             normalize_list.remove("")
         return normalize_list
 
-    # def parse(self, response):
-    #     fight_event_links = response.css(
-    #         "table.b-statistics__table-events tbody tr.b-statistics__table-row i.b-statistics__table-content a::attr(href)").getall()
-    #     yield from response.follow_all(fight_event_links, self.parse_fight_events)
-
-    # def parse_fight_events(self, response):
-    #     fight_links = response.css(
-    #         "table.b-fight-details__table tbody tr::attr(data-link)").getall()
-    #     yield from response.follow_all(fight_links, self.parse_fight_events)
-
-    # def parse_fight_event(self, response):
-    #     page = response.url.split("/")[-2]
-    #     filename = f'fights-{page}.html'
-    #     with open(filename, 'wb') as f:
-    #         f.write(response.body)
-    #     self.log(f'Saved file {filename}')
+    def trim_list(self, stats_list):
+        temp_array = []
