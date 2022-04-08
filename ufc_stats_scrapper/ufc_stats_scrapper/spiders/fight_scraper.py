@@ -1,10 +1,11 @@
 from os import stat
 import scrapy
 import numpy as np
+from .util import *
 
 
 class UfcFightSpider(scrapy.Spider):
-    name = "ufc_fight"
+    name = "ufc_fights"
     start_urls = ["http://ufcstats.com/statistics/events/completed?page=all"]
 
     def parse(self, response):
@@ -26,7 +27,7 @@ class UfcFightSpider(scrapy.Spider):
         fighter_results = response.css(
             "section a.b-fight-details__person-link ::text"
         ).getall()
-        fighter_results = self.normalize_results(fighter_results)
+        fighter_results = normalize_results(fighter_results)
 
         red_fighter = fighter_results[0]
         blue_fighter = fighter_results[1]
@@ -35,7 +36,8 @@ class UfcFightSpider(scrapy.Spider):
         winner_results = response.css(
             "section div.b-fight-details__person i.b-fight-details__person-status ::text"
         ).getall()
-        winner_results = self.normalize_results(winner_results)
+
+        winner_results = normalize_results(winner_results)
         r_win = 1 if winner_results[0] == "W" else 0
         b_win = 1 if winner_results[1] == "W" else 0
 
@@ -43,7 +45,8 @@ class UfcFightSpider(scrapy.Spider):
         fdetails_results = response.css(
             "section div.b-fight-details__fight ::text"
         ).getall()
-        fdetails_results = self.normalize_results(fdetails_results)
+
+        fdetails_results = normalize_results(fdetails_results)
 
         wei_class = fdetails_results[0]
         method = fdetails_results[2]
@@ -57,7 +60,8 @@ class UfcFightSpider(scrapy.Spider):
         fstats_list = response.xpath(
             '//table[@style="width: 745px"]//p/text()'
         ).getall()
-        fstats_list = self.normalize_results(fstats_list)
+
+        fstats_list = normalize_results(fstats_list)
         np_stats = np.array(fstats_list)
 
         if np_stats.size == 34:
@@ -65,12 +69,16 @@ class UfcFightSpider(scrapy.Spider):
             stats_matrix = np.reshape(np_stats, (17, 2))
             r_kd = int(stats_matrix[0][0])
             b_kd = int(stats_matrix[0][1])
-            r_sigstr = int(self.null_check(stats_matrix[2][0]).replace("%", "")) / 100
-            b_sigstr = int(self.null_check(stats_matrix[2][1]).replace("%", "")) / 100
+            r_sigstr = int(self.null_check(
+                stats_matrix[2][0]).replace("%", "")) / 100
+            b_sigstr = int(self.null_check(
+                stats_matrix[2][1]).replace("%", "")) / 100
             r_totstr = self.compute_percentage(stats_matrix[3][0])
             b_totstr = self.compute_percentage(stats_matrix[3][1])
-            r_td = int(self.null_check(stats_matrix[5][0]).replace("%", "")) / 100
-            b_td = int(self.null_check(stats_matrix[5][1]).replace("%", "")) / 100
+            r_td = int(self.null_check(
+                stats_matrix[5][0]).replace("%", "")) / 100
+            b_td = int(self.null_check(
+                stats_matrix[5][1]).replace("%", "")) / 100
             r_sub = int(self.null_check(stats_matrix[6][0]))
             b_sub = int(self.null_check(stats_matrix[6][1]))
             r_rev = int(self.null_check(stats_matrix[7][0]))
@@ -158,22 +166,9 @@ class UfcFightSpider(scrapy.Spider):
         else:
             return stat
 
-    def strip_scrapped_data(self, results):
-        list(map(str.strip, results))
-        while "" in results:
-            results.remove("")
-
-        return results
-
     def convert_minutes_to_seconds(self, time):
         if ":" not in time:
             return 0
         else:
             time_list = time.split(":")
             return int(time_list[0]) * 60 + int(time_list[1])
-
-    def normalize_results(self, results):
-        normalize_list = list(map(str.strip, results))
-        while "" in normalize_list:
-            normalize_list.remove("")
-        return normalize_list

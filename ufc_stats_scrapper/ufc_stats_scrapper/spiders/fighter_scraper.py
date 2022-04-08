@@ -1,7 +1,8 @@
-from os import stat
 import scrapy
 import numpy as np
 from datetime import date
+
+from .util import normalize_results
 
 
 class UfcFightSpider(scrapy.Spider):
@@ -45,19 +46,24 @@ class UfcFightSpider(scrapy.Spider):
         yield from response.follow_all(fighters, self.parse_fighter)
 
     def parse_fighter(self, response):
+        # scrap fighter name
         name = str.strip(
-            response.css("section span.b-content__title-highlight ::text").get()
+            response.css(
+                "section span.b-content__title-highlight ::text").get()
         )
-        nickname = str.strip(response.css("p.b-content__Nickname ::text").get())
+        nickname = str.strip(response.css(
+            "p.b-content__Nickname ::text").get())
         first_name = name.split(" ")[0]
         last_name = name.split(" ")[1]
 
+        # scrap fighter record
         record = str.strip(
             response.css("span.b-content__title-record ::text").get()
         ).split(" ")[1]
 
+        # scrap fighter stats
         fstats = response.css("li.b-list__box-list-item ::text").getall()
-        fstats = self.strip_scrapped_data(fstats)
+        fstats = normalize_results(fstats)
         fstats = np.array(fstats)
         if fstats.size == 25:
             fstats = np.insert(fstats, 7, "---")
@@ -129,21 +135,6 @@ class UfcFightSpider(scrapy.Spider):
             else "N/A"
         )
 
-        # print(height)
-        # print(weight)
-        # print(reach)
-        # print(stance)
-        # print(dob)
-        # print(age)
-        # print(slpm)
-        # print(str_ac)
-        # print(sapm)
-        # print(str_def)
-        # print(td_avg)
-        # print(td_acc)
-        # print(td_def)
-        # print(sub_avg)
-
         yield {
             "name": name,
             "nickname": nickname,
@@ -166,25 +157,14 @@ class UfcFightSpider(scrapy.Spider):
             "sub_avg": sub_avg,
         }
 
-    def strip_scrapped_data(self, results):
-        results = list(map(str.strip, results))
-        while "" in results:
-            results.remove("")
-        return results
-
-    def null_check(self, stat):
-        if stat == "---" or stat == "--":
-            return "0"
-        else:
-            return stat
-
     def compute_age(self, dob):
         dob_split = dob.replace(",", "").split(" ")
         month = self.month_map.get(dob_split[0])
         today = date.today()
         bday = date(int(dob_split[2]), int(month), int(dob_split[1]))
         return (
-            today.year - bday.year - ((today.month, today.day) < (bday.month, bday.day))
+            today.year - bday.year -
+            ((today.month, today.day) < (bday.month, bday.day))
         )
 
     def convert_feet_to_inches(self, height):
