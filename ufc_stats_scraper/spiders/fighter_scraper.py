@@ -28,7 +28,6 @@ class UfcFightSpider(scrapy.Spider):
         alphabetized_fighter_links = response.css(
             "section div.b-statistics__nav-inner ul li a::attr(href)"
         ).getall()
-        print(alphabetized_fighter_links)
         yield from response.follow_all(
             alphabetized_fighter_links, self.fetch_all_fighters
         )
@@ -48,11 +47,9 @@ class UfcFightSpider(scrapy.Spider):
     def parse_fighter(self, response):
         # scrap fighter name
         name = str.strip(
-            response.css(
-                "section span.b-content__title-highlight ::text").get()
+            response.css("section span.b-content__title-highlight ::text").get()
         )
-        nickname = str.strip(response.css(
-            "p.b-content__Nickname ::text").get())
+        nickname = str.strip(response.css("p.b-content__Nickname ::text").get())
         first_name = name.split(" ")[0]
         last_name = name.split(" ")[1]
 
@@ -163,8 +160,7 @@ class UfcFightSpider(scrapy.Spider):
         today = date.today()
         bday = date(int(dob_split[2]), int(month), int(dob_split[1]))
         return (
-            today.year - bday.year -
-            ((today.month, today.day) < (bday.month, bday.day))
+            today.year - bday.year - ((today.month, today.day) < (bday.month, bday.day))
         )
 
     def convert_feet_to_inches(self, height):
