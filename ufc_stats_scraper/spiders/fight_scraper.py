@@ -1,4 +1,3 @@
-from os import stat
 import scrapy
 import numpy as np
 from ufc_stats_scraper.util import *
