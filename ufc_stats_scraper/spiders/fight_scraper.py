@@ -23,29 +23,27 @@ class UfcFightSpider(scrapy.Spider):
         # red fighter data will always be in index 0 and blue fighter data will always be in index 1
 
         # scrap the fighter names
-        fighter_results = response.css(
-            "section a.b-fight-details__person-link ::text"
-        ).getall()
-        fighter_results = normalize_results(fighter_results)
+        fighter_results = self.normalize(
+            response.css("section a.b-fight-details__person-link ::text").getall()
+        )
 
         red_fighter = fighter_results[0]
         blue_fighter = fighter_results[1]
 
         # scrap the winner
-        winner_results = response.css(
-            "section div.b-fight-details__person i.b-fight-details__person-status ::text"
-        ).getall()
+        winner_results = normalize_results(
+            response.css(
+                "section div.b-fight-details__person i.b-fight-details__person-status ::text"
+            ).getall()
+        )
 
-        winner_results = normalize_results(winner_results)
         r_win = 1 if winner_results[0] == "W" else 0
         b_win = 1 if winner_results[1] == "W" else 0
 
         # scrap fight details
-        fdetails_results = response.css(
-            "section div.b-fight-details__fight ::text"
-        ).getall()
-
-        fdetails_results = normalize_results(fdetails_results)
+        fdetails_results = normalize_results(
+            response.css("section div.b-fight-details__fight ::text").getall()
+        )
 
         wei_class = fdetails_results[0]
         method = fdetails_results[2]
@@ -53,14 +51,13 @@ class UfcFightSpider(scrapy.Spider):
         time = fdetails_results[6]
         t_format = fdetails_results[8]
         ref = fdetails_results[10]
-        details = fdetails_results[12] if len(fdetails_results) == 13 else ""
+        details = str.strip(fdetails_results[12]) if len(fdetails_results) == 13 else ""
 
         # scrap fight statistics
-        fstats_list = response.xpath(
-            '//table[@style="width: 745px"]//p/text()'
-        ).getall()
+        fstats_list = normalize_results(
+            response.xpath('//table[@style="width: 745px"]//p/text()').getall()
+        )
 
-        fstats_list = normalize_results(fstats_list)
         np_stats = np.array(fstats_list)
 
         if np_stats.size == 34:
@@ -68,8 +65,8 @@ class UfcFightSpider(scrapy.Spider):
             stats_matrix = np.reshape(np_stats, (17, 2))
             r_kd = int(stats_matrix[0][0])
             b_kd = int(stats_matrix[0][1])
-            r_sigstr = int(self.null_check(stats_matrix[2][0]).replace("%", "")) / 100
-            b_sigstr = int(self.null_check(stats_matrix[2][1]).replace("%", "")) / 100
+            r_sigstr = self.compute_percentage(stats_matrix[1][0])
+            b_sigstr = self.compute_percentage(stats_matrix[1][1])
             r_totstr = self.compute_percentage(stats_matrix[3][0])
             b_totstr = self.compute_percentage(stats_matrix[3][1])
             r_td = int(self.null_check(stats_matrix[5][0]).replace("%", "")) / 100
