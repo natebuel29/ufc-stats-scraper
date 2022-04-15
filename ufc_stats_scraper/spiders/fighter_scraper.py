@@ -5,7 +5,7 @@ from datetime import date
 from ufc_stats_scraper.util import normalize_results
 
 
-class UfcFightSpider(scrapy.Spider):
+class UfcFighterSpider(scrapy.Spider):
     name = "ufc_fighters"
     start_urls = ["http://ufcstats.com/statistics/fighters"]
 
@@ -54,9 +54,14 @@ class UfcFightSpider(scrapy.Spider):
         last_name = name.split(" ")[1]
 
         # scrap fighter record
-        record = str.strip(
-            response.css("span.b-content__title-record ::text").get()
-        ).split(" ")[1]
+        record_array = (
+            str.strip(response.css("span.b-content__title-record ::text").get())
+            .split(" ")[1]
+            .split("-")
+        )
+        wins = int(record_array[0])
+        loses = int(record_array[1])
+        ties = int(record_array[2])
 
         # scrap fighter stats
         fstats = response.css("li.b-list__box-list-item ::text").getall()
@@ -137,7 +142,9 @@ class UfcFightSpider(scrapy.Spider):
             "nickname": nickname,
             "f_name": first_name,
             "l_name": last_name,
-            "record": record,
+            "wins": wins,
+            "loses": loses,
+            "ties": ties,
             "height": height,
             "weight": weight,
             "reach": reach,
