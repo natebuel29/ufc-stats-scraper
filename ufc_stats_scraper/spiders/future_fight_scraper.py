@@ -4,7 +4,7 @@ import numpy as np
 from ufc_stats_scraper.util import *
 
 
-class UfcFightSpider(scrapy.Spider):
+class UfcFutureFightSpider(scrapy.Spider):
     name = "ufc_future_fights"
     start_urls = ["http://ufcstats.com/statistics/events/upcoming?page=all"]
 

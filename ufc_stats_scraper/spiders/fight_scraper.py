@@ -23,7 +23,7 @@ class UfcFightSpider(scrapy.Spider):
         # red fighter data will always be in index 0 and blue fighter data will always be in index 1
 
         # scrap the fighter names
-        fighter_results = self.normalize(
+        fighter_results = normalize_results(
             response.css("section a.b-fight-details__person-link ::text").getall()
         )
 

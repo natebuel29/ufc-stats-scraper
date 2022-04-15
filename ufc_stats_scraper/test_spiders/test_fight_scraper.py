@@ -1,4 +1,5 @@
 import unittest
+import os
 from ufc_stats_scraper.spiders.fight_scraper import *
 from scrapy import Selector
 
@@ -9,7 +10,9 @@ class TestUfcFightSpider(unittest.TestCase):
 
     def test_average_ufc_fight_page(self):
         test_file = open(
-            "ufc_stats_scraper/test_spiders/test_resources/standard_test_fight.html",
+            os.path.abspath(
+                "ufc_stats_scraper/test_spiders/test_resources/standard_test_fight.html"
+            ),
             "r",
         )
         self.fake_response = Selector(text=test_file.read())
@@ -53,12 +56,13 @@ class TestUfcFightSpider(unittest.TestCase):
         self.assertEqual(results.pop("b_cli"), 0)
         self.assertEqual(results.pop("r_gro"), 0.67)
         self.assertEqual(results.pop("b_gro"), 0)
-        print(results)
         self.assertEqual(len(results), 0)
 
     def test_unusual_ufc_fight_page(self):
         test_file = open(
-            "ufc_stats_scraper/test_spiders/test_resources/unusual_test_fight.html",
+            os.path.abspath(
+                "ufc_stats_scraper/test_spiders/test_resources/unusual_test_fight.html"
+            ),
             "r",
         )
         self.fake_response = Selector(text=test_file.read())

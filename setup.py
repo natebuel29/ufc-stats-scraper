@@ -4,5 +4,5 @@ setup(
     name="ufc_stats_scraper",
     version="0.0.1",
     author="Nathan Buel",
-    packages=["ufc_stats_scraper"],
+    packages=["ufc_stats_scraper", "ufc_stats_scraper.test_spiders"],
 )
