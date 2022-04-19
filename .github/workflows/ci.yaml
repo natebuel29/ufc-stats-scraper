@@ -12,6 +12,13 @@ jobs:
     steps:
       - name: Check Out Repo 
         uses: actions/checkout@v2
+      
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - name: Check output
+        env:
+          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
 
       - name: Setup Python
         uses: actions/setup-python@v3
@@ -52,7 +59,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags:  ${{ secrets.DOCKER_HUB_USERNAME }}/ufc-stats-scraper:latest
+          tags:  ${{ secrets.DOCKER_HUB_USERNAME }}/ufc-stats-scraper:$RELEASE_VERSION
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
