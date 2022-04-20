@@ -12,8 +12,6 @@ COPY requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 
-COPY . .
-
-ENTRYPOINT ["scrapy"]
+ADD . /app
 
 ##useful commands  docker run -it -v ${PWD}:/app ufc-stats-scraper crawl ufc_future_fights  -o future.csv -t csv this will output csv file in current directory
