@@ -34,7 +34,7 @@ def convert_minutes_to_seconds(time):
 
 def compute_age(dob):
     dob_split = dob.replace(",", "").split(" ")
-    month = self.month_map.get(dob_split[0])
+    month = month_map.get(dob_split[0])
     today = date.today()
     bday = date(int(dob_split[2]), int(month), int(dob_split[1]))
     return today.year - bday.year - ((today.month, today.day) < (bday.month, bday.day))

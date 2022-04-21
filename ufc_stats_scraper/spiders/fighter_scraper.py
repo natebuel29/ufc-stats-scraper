@@ -6,7 +6,7 @@ from ufc_stats_scraper.util import *
 
 class UfcFighterSpider(scrapy.Spider):
     name = "ufc_fighters"
-    # = ["http://ufcstats.com/statistics/fighters"]
+    start_urls = ["http://ufcstats.com/fighter-details/1897b7b913736a7c"]
 
     month_map = {
         "Jan": 1,
@@ -23,13 +23,13 @@ class UfcFighterSpider(scrapy.Spider):
         "Dec": 12,
     }
 
-    def parse(self, response):
-        alphabetized_fighter_links = response.css(
-            "section div.b-statistics__nav-inner ul li a::attr(href)"
-        ).getall()
-        yield from response.follow_all(
-            alphabetized_fighter_links, self.fetch_all_fighters
-        )
+    # def parse(self, response):
+    #     alphabetized_fighter_links = response.css(
+    #         "section div.b-statistics__nav-inner ul li a::attr(href)"
+    #     ).getall()
+    #     yield from response.follow_all(
+    #         alphabetized_fighter_links, self.fetch_all_fighters
+    #     )
 
     def fetch_all_fighters(self, response):
         all_pages = response.css(
@@ -43,14 +43,14 @@ class UfcFighterSpider(scrapy.Spider):
         ).getall()
         yield from response.follow_all(fighters, self.parse_fighter)
 
-    def parse_fighter(self, response):
+    def parse(self, response):
         # scrap fighter name
         name = str.strip(
             response.css("section span.b-content__title-highlight ::text").get()
         )
         nickname = str.strip(response.css("p.b-content__Nickname ::text").get())
         first_name = name.split(" ")[0]
-        last_name = name.split(" ")[1]
+        last_name = name.split(" ")[1] if len(name.split(" ")) > 1 else "N/A"
 
         # scrap fighter record
         record_array = (
