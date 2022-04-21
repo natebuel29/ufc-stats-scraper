@@ -7,7 +7,7 @@ from ufc_stats_scraper.util import normalize_results
 
 class UfcFighterSpider(scrapy.Spider):
     name = "ufc_fighters"
-    start_urls = ["http://ufcstats.com/statistics/fighters"]
+    # = ["http://ufcstats.com/statistics/fighters"]
 
     month_map = {
         "Jan": 1,
