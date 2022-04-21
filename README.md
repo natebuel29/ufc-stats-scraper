@@ -26,7 +26,7 @@ https://hub.docker.com/repository/docker/natebuel29/ufc-stats-scraper
 ufc-stats-scraper has also been containerized and made avaliable on Docker Hub. The following commands can be used to kick off the web scraper and extract the csv file from the container:
 
 ```
-docker run -it -v ${PWD}:/app/data natebuel20/ufc-stats-scraper  scrapy crawl ufc_fighters -o /app/data/fighters.csv -t csv
+docker run -it -v ${PWD}:/app/data natebuel29/ufc-stats-scraper  scrapy crawl ufc_fighters -o /app/data/fighters.csv -t csv
 docker run -it -v ${PWD}:/app/data natebuel29/ufc-stats-scraper  scrapy crawl ufc_fights -o /app/data/fights.csv -t csv
 docker run -it -v ${PWD}:/app/data natebuel29/ufc-stats-scraper  scrapy crawl ufc_future_fights -o /app/data/future_fights.csv -t csv
 ```
