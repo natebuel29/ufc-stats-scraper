@@ -10,7 +10,7 @@ This project can be cloned and run as a Python program. The only prerequisite is
 
 - Create a [virtualenv](https://docs.python.org/3/tutorial/venv.html) for the project
 - Activate your virtual env
-- install all the required dependencies your virtual env - `pip install -r requirements.txt`
+- install all the required dependencies - `pip install -r requirements.txt`
 
 After the setup is complete, the following commands will create csv files with the scraped data:
 
@@ -31,7 +31,7 @@ docker run -it -v ${PWD}:/app/data ufc-stats-scraper  scrapy crawl ufc_fights -o
 docker run -it -v ${PWD}:/app/data ufc-stats-scraper  scrapy crawl ufc_future_fights -o /app/data/future_fights.csv -t csv
 ```
 
-NOTE: Our docker run command needs to mount the /app/data directory to acquire the csv output files. `${PWD}:/app/data` mounts the current directory to the containers app/data directory.
+NOTE: The docker run command needs to mount the /app/data directory to acquire the csv output files. `${PWD}:/app/data` mounts the current directory to the containers app/data directory.
 
 # Testing
 
