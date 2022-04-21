@@ -1,28 +1,12 @@
 import scrapy
 import numpy as np
-from datetime import date
 
-from ufc_stats_scraper.util import normalize_results
+from ufc_stats_scraper.util import *
 
 
 class UfcFighterSpider(scrapy.Spider):
     name = "ufc_fighters"
-    # = ["http://ufcstats.com/statistics/fighters"]
-
-    month_map = {
-        "Jan": 1,
-        "Feb": 2,
-        "Mar": 3,
-        "Apr": 4,
-        "May": 5,
-        "Jun": 6,
-        "Jul": 7,
-        "Aug": 8,
-        "Sep": 9,
-        "Oct": 10,
-        "Nov": 11,
-        "Dec": 12,
-    }
+    start_urls = ["http://ufcstats.com/statistics/fighters?char=a&page=all"]
 
     def parse(self, response):
         alphabetized_fighter_links = response.css(
@@ -51,7 +35,7 @@ class UfcFighterSpider(scrapy.Spider):
         )
         nickname = str.strip(response.css("p.b-content__Nickname ::text").get())
         first_name = name.split(" ")[0]
-        last_name = name.split(" ")[1]
+        last_name = name.split(" ")[1] if len(name.split(" ")) > 1 else "N/A"
 
         # scrap fighter record
         record_array = (
@@ -71,7 +55,7 @@ class UfcFighterSpider(scrapy.Spider):
             fstats = np.insert(fstats, 7, "---")
         stats_matrix = np.reshape(fstats, (13, 2))
         height = (
-            self.convert_feet_to_inches(stats_matrix[0][1])
+            convert_feet_to_inches(stats_matrix[0][1])
             if stats_matrix[0][1] != "---" and stats_matrix[0][1] != "--"
             else "N/A"
         )
@@ -95,7 +79,7 @@ class UfcFighterSpider(scrapy.Spider):
             if stats_matrix[4][1] != "---" and stats_matrix[4][1] != "--"
             else "N/A"
         )
-        age = self.compute_age(dob) if dob != "N/A" else "N/A"
+        age = compute_age(dob) if dob != "N/A" else "N/A"
         slpm = (
             float(stats_matrix[5][1])
             if stats_matrix[5][1] != "---" and stats_matrix[5][1] != "--"
@@ -160,17 +144,3 @@ class UfcFighterSpider(scrapy.Spider):
             "td_def": td_def,
             "sub_avg": sub_avg,
         }
-
-    def compute_age(self, dob):
-        dob_split = dob.replace(",", "").split(" ")
-        month = self.month_map.get(dob_split[0])
-        today = date.today()
-        bday = date(int(dob_split[2]), int(month), int(dob_split[1]))
-        return (
-            today.year - bday.year - ((today.month, today.day) < (bday.month, bday.day))
-        )
-
-    def convert_feet_to_inches(self, height):
-        height = height.replace('"', "")
-        split_height = height.split("' ")
-        return int(split_height[0]) * 12 + int(split_height[1])

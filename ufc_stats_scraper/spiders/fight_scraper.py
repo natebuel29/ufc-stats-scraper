@@ -65,30 +65,30 @@ class UfcFightSpider(scrapy.Spider):
             stats_matrix = np.reshape(np_stats, (17, 2))
             r_kd = int(stats_matrix[0][0])
             b_kd = int(stats_matrix[0][1])
-            r_sigstr = self.compute_percentage(stats_matrix[1][0])
-            b_sigstr = self.compute_percentage(stats_matrix[1][1])
-            r_totstr = self.compute_percentage(stats_matrix[3][0])
-            b_totstr = self.compute_percentage(stats_matrix[3][1])
-            r_td = int(self.null_check(stats_matrix[5][0]).replace("%", "")) / 100
-            b_td = int(self.null_check(stats_matrix[5][1]).replace("%", "")) / 100
-            r_sub = int(self.null_check(stats_matrix[6][0]))
-            b_sub = int(self.null_check(stats_matrix[6][1]))
-            r_rev = int(self.null_check(stats_matrix[7][0]))
-            b_rev = int(self.null_check(stats_matrix[7][1]))
-            r_ctrl = self.convert_minutes_to_seconds(stats_matrix[8][0])
-            b_ctrl = self.convert_minutes_to_seconds(stats_matrix[8][1])
-            r_hstr = self.compute_percentage(stats_matrix[11][0])
-            b_hstr = self.compute_percentage(stats_matrix[11][1])
-            r_bstr = self.compute_percentage(stats_matrix[12][0])
-            b_bstr = self.compute_percentage(stats_matrix[12][1])
-            r_lstr = self.compute_percentage(stats_matrix[13][0])
-            b_lstr = self.compute_percentage(stats_matrix[13][1])
-            r_dis = self.compute_percentage(stats_matrix[14][0])
-            b_dis = self.compute_percentage(stats_matrix[14][1])
-            r_cli = self.compute_percentage(stats_matrix[15][0])
-            b_cli = self.compute_percentage(stats_matrix[15][1])
-            r_gro = self.compute_percentage(stats_matrix[16][0])
-            b_gro = self.compute_percentage(stats_matrix[16][1])
+            r_sigstr = compute_percentage(stats_matrix[1][0])
+            b_sigstr = compute_percentage(stats_matrix[1][1])
+            r_totstr = compute_percentage(stats_matrix[3][0])
+            b_totstr = compute_percentage(stats_matrix[3][1])
+            r_td = int(null_check(stats_matrix[5][0]).replace("%", "")) / 100
+            b_td = int(null_check(stats_matrix[5][1]).replace("%", "")) / 100
+            r_sub = int(null_check(stats_matrix[6][0]))
+            b_sub = int(null_check(stats_matrix[6][1]))
+            r_rev = int(null_check(stats_matrix[7][0]))
+            b_rev = int(null_check(stats_matrix[7][1]))
+            r_ctrl = convert_minutes_to_seconds(stats_matrix[8][0])
+            b_ctrl = convert_minutes_to_seconds(stats_matrix[8][1])
+            r_hstr = compute_percentage(stats_matrix[11][0])
+            b_hstr = compute_percentage(stats_matrix[11][1])
+            r_bstr = compute_percentage(stats_matrix[12][0])
+            b_bstr = compute_percentage(stats_matrix[12][1])
+            r_lstr = compute_percentage(stats_matrix[13][0])
+            b_lstr = compute_percentage(stats_matrix[13][1])
+            r_dis = compute_percentage(stats_matrix[14][0])
+            b_dis = compute_percentage(stats_matrix[14][1])
+            r_cli = compute_percentage(stats_matrix[15][0])
+            b_cli = compute_percentage(stats_matrix[15][1])
+            r_gro = compute_percentage(stats_matrix[16][0])
+            b_gro = compute_percentage(stats_matrix[16][1])
 
             yield {
                 "r_fighter": red_fighter,
@@ -144,24 +144,3 @@ class UfcFightSpider(scrapy.Spider):
                 "ref": ref,
                 "details": details,
             }
-
-    def compute_percentage(self, stat):
-        if "of" not in stat:
-            return 0
-        results = stat.split(" of ")
-        if int(results[1]) == 0:
-            return 0
-        return round(int(results[0]) / int(results[1]), 2)
-
-    def null_check(self, stat):
-        if stat == "---" or stat == "--":
-            return "0"
-        else:
-            return stat
-
-    def convert_minutes_to_seconds(self, time):
-        if ":" not in time:
-            return 0
-        else:
-            time_list = time.split(":")
-            return int(time_list[0]) * 60 + int(time_list[1])
