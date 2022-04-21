@@ -6,30 +6,15 @@ from ufc_stats_scraper.util import *
 
 class UfcFighterSpider(scrapy.Spider):
     name = "ufc_fighters"
-    start_urls = ["http://ufcstats.com/fighter-details/1897b7b913736a7c"]
+    start_urls = ["http://ufcstats.com/statistics/fighters?char=a&page=all"]
 
-    month_map = {
-        "Jan": 1,
-        "Feb": 2,
-        "Mar": 3,
-        "Apr": 4,
-        "May": 5,
-        "Jun": 6,
-        "Jul": 7,
-        "Aug": 8,
-        "Sep": 9,
-        "Oct": 10,
-        "Nov": 11,
-        "Dec": 12,
-    }
-
-    # def parse(self, response):
-    #     alphabetized_fighter_links = response.css(
-    #         "section div.b-statistics__nav-inner ul li a::attr(href)"
-    #     ).getall()
-    #     yield from response.follow_all(
-    #         alphabetized_fighter_links, self.fetch_all_fighters
-    #     )
+    def parse(self, response):
+        alphabetized_fighter_links = response.css(
+            "section div.b-statistics__nav-inner ul li a::attr(href)"
+        ).getall()
+        yield from response.follow_all(
+            alphabetized_fighter_links, self.fetch_all_fighters
+        )
 
     def fetch_all_fighters(self, response):
         all_pages = response.css(
@@ -43,7 +28,7 @@ class UfcFighterSpider(scrapy.Spider):
         ).getall()
         yield from response.follow_all(fighters, self.parse_fighter)
 
-    def parse(self, response):
+    def parse_fighter(self, response):
         # scrap fighter name
         name = str.strip(
             response.css("section span.b-content__title-highlight ::text").get()

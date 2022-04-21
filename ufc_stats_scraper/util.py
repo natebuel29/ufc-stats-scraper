@@ -33,6 +33,20 @@ def convert_minutes_to_seconds(time):
 
 
 def compute_age(dob):
+    month_map = {
+        "Jan": 1,
+        "Feb": 2,
+        "Mar": 3,
+        "Apr": 4,
+        "May": 5,
+        "Jun": 6,
+        "Jul": 7,
+        "Aug": 8,
+        "Sep": 9,
+        "Oct": 10,
+        "Nov": 11,
+        "Dec": 12,
+    }
     dob_split = dob.replace(",", "").split(" ")
     month = month_map.get(dob_split[0])
     today = date.today()
