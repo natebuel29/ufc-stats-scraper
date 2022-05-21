@@ -30,4 +30,5 @@ class TestUfcFutureFightSpider(unittest.TestCase):
         self.assertEqual(results.pop("date"), "test date")
         self.assertEqual(results.pop("location"), "test location")
         self.assertEqual(results.pop("bout"), "UFC Lightweight Title Bout")
+        self.assertEqual(results.pop("event_name"), "UFC 274: Oliveira vs. Gaethje")
         self.assertEqual(len(results), 0)
