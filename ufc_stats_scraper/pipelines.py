@@ -11,9 +11,9 @@ from itemadapter import ItemAdapter
 
 class UfcStatsScraperPipeline:
     connection = {
-        "host": "uuz525xubt27v.cdxfj1ghajls.us-east-1.rds.amazonaws.com",
+        "host": "",
         "username": "mysqlAdmin",
-        "password": "pjc-NMz12H.Roq=WTW^DwuxNoNGs02",
+        "password": "",
         "db": "thisisatest",
     }
 
@@ -39,7 +39,7 @@ class UfcStatsScraperPipeline:
         )
 
     def process_item(self, item, spider):
-        sql = """ INSERT OR IGNORE INTO future_fights (fighter_1,fighter_2,date_,bout,location_,event_name) VALUES (%s,%s,%s,%s,%s,%s)
+        sql = """ INSERT IGNORE INTO future_fights (fighter_1,fighter_2,date_,bout,location_,event_name) VALUES (%s,%s,%s,%s,%s,%s)
         """
         val = (
             item["fighter_1"],
