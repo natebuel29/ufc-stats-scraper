@@ -120,8 +120,6 @@ class UfcFightScraperPipeline:
         details,r_kd,b_kd,r_sigstr,b_sigstr,r_totstr,b_totstr,r_td,b_td,r_sub,b_sub,r_rev,b_rev,r_ctrl,b_ctrl,r_hstr,b_hstr,r_bstr,
         b_bstr,r_lstr,b_lstr,r_dis,b_dis,r_cli,b_cli,r_gro,b_gro) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """
-
-        # TODO: Add NULL checking for fights missing parameters
         val = (
             item["r_fighter"],
             item["b_fighter"],
@@ -162,7 +160,83 @@ class UfcFightScraperPipeline:
             item["b_gro"],
         )
 
-        print(val)
+        self.cur.execute(sql, val)
+        self.con.commit()
+        return item
+
+
+class UfcFighterScraperPipeline:
+    connection = {
+        "host": "",
+        "username": "mysqlAdmin",
+        "password": "",
+        "db": "thisisatest",
+    }
+
+    def __init__(self):
+        self.con = mysql.connector.connect(
+            host=self.connection["host"],
+            user=self.connection["username"],
+            password=self.connection["password"],
+            database=self.connection["db"],
+        )
+        self.cur = self.con.cursor()
+        self.create_table()
+
+    def create_table(self):
+        self.cur.execute(
+            """CREATE TABLE if not exists fighters(id INT AUTO_INCREMENT PRIMARY KEY,
+            name_ TEXT,
+            nickname TEXT,
+            f_name TEXT,
+            l_name TEXT,
+            wins INT,
+            loses INT,
+            ties INT,
+            height INT,
+            weight_ INT,
+            reach INT,
+            stance TEXT,
+            dob TEXT,
+            age INT,
+            slpm FLOAT,
+            str_ac FLOAT,
+            sapm FLOAT,
+            str_def FLOAT,
+            td_avg FLOAT,
+            td_acc FLOAT,
+            td_def FLOAT,
+            sub_avg FLOAT)"""
+        )
+
+    ##still need to figure out null variables
+    def process_item(self, item, spider):
+        sql = """ INSERT INTO fighters (name_,nickname,f_name,l_name,wins,loses,ties,height,weight_,reach,stance,
+        dob,age,slpm,str_ac,sapm,str_def,td_avg,td_acc,td_def,sub_avg) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """
+        val = (
+            item["name"],
+            item["nickname"],
+            item["f_name"],
+            item["l_name"],
+            item["wins"],
+            item["loses"],
+            item["ties"],
+            item["height"],
+            item["weight"],
+            item["reach"],
+            item["stance"],
+            item["dob"],
+            item["age"],
+            item["slpm"],
+            item["str_ac"],
+            item["sapm"],
+            item["str_def"],
+            item["td_avg"],
+            item["td_acc"],
+            item["td_def"],
+            item["sub_avg"],
+        )
 
         self.cur.execute(sql, val)
         self.con.commit()

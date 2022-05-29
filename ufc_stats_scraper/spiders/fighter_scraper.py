@@ -57,17 +57,17 @@ class UfcFighterSpider(scrapy.Spider):
         height = (
             convert_feet_to_inches(stats_matrix[0][1])
             if stats_matrix[0][1] != "---" and stats_matrix[0][1] != "--"
-            else "N/A"
+            else None
         )
         weight = (
             int(stats_matrix[1][1].split(" lbs.")[0])
             if stats_matrix[1][1] != "---" and stats_matrix[1][1] != "--"
-            else "N/A"
+            else None
         )
         reach = (
             int(stats_matrix[2][1].split('"')[0])
             if stats_matrix[2][1] != "---" and stats_matrix[2][1] != "--"
-            else "N/A"
+            else None
         )
         stance = (
             stats_matrix[3][1]
@@ -83,42 +83,42 @@ class UfcFighterSpider(scrapy.Spider):
         slpm = (
             float(stats_matrix[5][1])
             if stats_matrix[5][1] != "---" and stats_matrix[5][1] != "--"
-            else "N/A"
+            else None
         )
         str_ac = (
             int(stats_matrix[6][1].replace("%", "")) / 100
             if stats_matrix[6][1] != "---" and stats_matrix[6][1] != "--"
-            else "N/A"
+            else None
         )
         sapm = (
             float(stats_matrix[7][1])
             if stats_matrix[7][1] != "---" and stats_matrix[7][1] != "--"
-            else "N/A"
+            else None
         )
         str_def = (
             int(stats_matrix[8][1].replace("%", "")) / 100
             if stats_matrix[8][1] != "---" and stats_matrix[8][1] != "--"
-            else "N/A"
+            else None
         )
         td_avg = (
             float(stats_matrix[9][1])
             if stats_matrix[9][1] != "---" and stats_matrix[9][1] != "--"
-            else "N/A"
+            else None
         )
         td_acc = (
             int(stats_matrix[10][1].replace("%", "")) / 100
             if stats_matrix[10][1] != "---" and stats_matrix[10][1] != "--"
-            else "N/A"
+            else None
         )
         td_def = (
             int(stats_matrix[11][1].replace("%", "")) / 100
             if stats_matrix[11][1] != "---" and stats_matrix[11][1] != "--"
-            else "N/A"
+            else None
         )
         sub_avg = (
             float(stats_matrix[12][1])
             if stats_matrix[12][1] != "---" and stats_matrix[12][1] != "--"
-            else "N/A"
+            else None
         )
 
         yield {
