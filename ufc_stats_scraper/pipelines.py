@@ -209,7 +209,6 @@ class UfcFighterScraperPipeline:
             sub_avg FLOAT)"""
         )
 
-    ##still need to figure out null variables
     def process_item(self, item, spider):
         sql = """ INSERT INTO fighters (name_,nickname,f_name,l_name,wins,loses,ties,height,weight_,reach,stance,
         dob,age,slpm,str_ac,sapm,str_def,td_avg,td_acc,td_def,sub_avg) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)

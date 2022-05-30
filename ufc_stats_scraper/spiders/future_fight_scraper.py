@@ -7,6 +7,11 @@ from ufc_stats_scraper.util import *
 class UfcFutureFightSpider(scrapy.Spider):
     name = "ufc_future_fights"
     start_urls = ["http://ufcstats.com/statistics/events/upcoming?page=all"]
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "ufc_stats_scraper.pipelines.UfcFutureFightScraperPipeline": 300,
+        }
+    }
 
     def parse(self, response):
         future_event_links = response.css("a.b-link::attr(href)").getall()

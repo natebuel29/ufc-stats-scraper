@@ -7,6 +7,11 @@ from ufc_stats_scraper.util import *
 class UfcFighterSpider(scrapy.Spider):
     name = "ufc_fighters"
     start_urls = ["http://ufcstats.com/statistics/fighters?char=a&page=all"]
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "ufc_stats_scraper.pipelines.UfcFighterScraperPipeline": 300,
+        }
+    }
 
     def parse(self, response):
         alphabetized_fighter_links = response.css(

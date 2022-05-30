@@ -6,6 +6,11 @@ from ufc_stats_scraper.util import *
 class UfcFightSpider(scrapy.Spider):
     name = "ufc_fights"
     start_urls = ["http://ufcstats.com/statistics/events/completed?page=all"]
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "ufc_stats_scraper.pipelines.UfcFightScraperPipeline": 300,
+        }
+    }
 
     def parse(self, response):
         fight_event_links = response.css(
