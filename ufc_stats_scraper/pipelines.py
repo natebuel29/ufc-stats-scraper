@@ -2,7 +2,7 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-
+import os
 import mysql.connector
 
 # useful for handling different item types with a single interface
@@ -10,22 +10,23 @@ from itemadapter import ItemAdapter
 
 
 class UfcFutureFightScraperPipeline:
-    connection = {
-        "host": "",
-        "username": "mysqlAdmin",
-        "password": "",
-        "db": "thisisatest",
-    }
-
     def __init__(self):
-        self.con = mysql.connector.connect(
-            host=self.connection["host"],
-            user=self.connection["username"],
-            password=self.connection["password"],
-            database=self.connection["db"],
-        )
-        self.cur = self.con.cursor()
-        self.create_table()
+        host = os.environ.get("DB_HOST")
+        user = os.environ.get("DB_USER")
+        password = os.environ.get("DB_PASSWORD")
+        database = os.environ.get("DB_DATABASE")
+        if host != None and user != None and password != None and database != None:
+            self.con = mysql.connector.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database,
+            )
+            self.cur = self.con.cursor()
+            self.create_table()
+        else:
+            self.con = None
+            self.cur = None
 
     def create_table(self):
         self.cur.execute(
@@ -39,39 +40,42 @@ class UfcFutureFightScraperPipeline:
         )
 
     def process_item(self, item, spider):
-        sql = """ INSERT IGNORE INTO future_fights (fighter_1,fighter_2,date_,bout,location_,event_name) VALUES (%s,%s,%s,%s,%s,%s)
-        """
-        val = (
-            item["fighter_1"],
-            item["fighter_2"],
-            item["date"],
-            item["bout"],
-            item["location"],
-            item["event_name"],
-        )
+        if self.con != None:
+            sql = """ INSERT IGNORE INTO future_fights (fighter_1,fighter_2,date_,bout,location_,event_name) VALUES (%s,%s,%s,%s,%s,%s)
+            """
+            val = (
+                item["fighter_1"],
+                item["fighter_2"],
+                item["date"],
+                item["bout"],
+                item["location"],
+                item["event_name"],
+            )
 
-        self.cur.execute(sql, val)
-        self.con.commit()
+            self.cur.execute(sql, val)
+            self.con.commit()
+
         return item
 
 
 class UfcFightScraperPipeline:
-    connection = {
-        "host": "",
-        "username": "mysqlAdmin",
-        "password": "",
-        "db": "thisisatest",
-    }
-
     def __init__(self):
-        self.con = mysql.connector.connect(
-            host=self.connection["host"],
-            user=self.connection["username"],
-            password=self.connection["password"],
-            database=self.connection["db"],
-        )
-        self.cur = self.con.cursor()
-        self.create_table()
+        host = os.environ.get("DB_HOST")
+        user = os.environ.get("DB_USER")
+        password = os.environ.get("DB_PASSWORD")
+        database = os.environ.get("DB_DATABASE")
+        if host != None and user != None and password != None and database != None:
+            self.con = mysql.connector.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database,
+            )
+            self.cur = self.con.cursor()
+            self.create_table()
+        else:
+            self.con = None
+            self.cur = None
 
     def create_table(self):
         self.cur.execute(
@@ -116,72 +120,75 @@ class UfcFightScraperPipeline:
         )
 
     def process_item(self, item, spider):
-        sql = """ INSERT IGNORE INTO fights (r_fighter,b_fighter,r_win,b_win,wei_class,method,round_,time_,t_format,ref,
-        details,r_kd,b_kd,r_sigstr,b_sigstr,r_totstr,b_totstr,r_td,b_td,r_sub,b_sub,r_rev,b_rev,r_ctrl,b_ctrl,r_hstr,b_hstr,r_bstr,
-        b_bstr,r_lstr,b_lstr,r_dis,b_dis,r_cli,b_cli,r_gro,b_gro) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        """
-        val = (
-            item["r_fighter"],
-            item["b_fighter"],
-            item["r_win"],
-            item["b_win"],
-            item["wei_class"],
-            item["method"],
-            item["round"],
-            item["time"],
-            item["t_format"],
-            item["ref"],
-            item["details"],
-            item["r_kd"],
-            item["b_kd"],
-            item["r_sigstr"],
-            item["b_sigstr"],
-            item["r_totstr"],
-            item["b_totstr"],
-            item["r_td"],
-            item["b_td"],
-            item["r_sub"],
-            item["b_sub"],
-            item["r_rev"],
-            item["b_rev"],
-            item["r_ctrl"],
-            item["b_ctrl"],
-            item["r_hstr"],
-            item["b_hstr"],
-            item["r_bstr"],
-            item["b_bstr"],
-            item["r_lstr"],
-            item["b_lstr"],
-            item["r_dis"],
-            item["b_dis"],
-            item["r_cli"],
-            item["b_cli"],
-            item["r_gro"],
-            item["b_gro"],
-        )
+        if self.con != None:
+            sql = """ INSERT IGNORE INTO fights (r_fighter,b_fighter,r_win,b_win,wei_class,method,round_,time_,t_format,ref,
+            details,r_kd,b_kd,r_sigstr,b_sigstr,r_totstr,b_totstr,r_td,b_td,r_sub,b_sub,r_rev,b_rev,r_ctrl,b_ctrl,r_hstr,b_hstr,r_bstr,
+            b_bstr,r_lstr,b_lstr,r_dis,b_dis,r_cli,b_cli,r_gro,b_gro) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """
+            val = (
+                item["r_fighter"],
+                item["b_fighter"],
+                item["r_win"],
+                item["b_win"],
+                item["wei_class"],
+                item["method"],
+                item["round"],
+                item["time"],
+                item["t_format"],
+                item["ref"],
+                item["details"],
+                item["r_kd"],
+                item["b_kd"],
+                item["r_sigstr"],
+                item["b_sigstr"],
+                item["r_totstr"],
+                item["b_totstr"],
+                item["r_td"],
+                item["b_td"],
+                item["r_sub"],
+                item["b_sub"],
+                item["r_rev"],
+                item["b_rev"],
+                item["r_ctrl"],
+                item["b_ctrl"],
+                item["r_hstr"],
+                item["b_hstr"],
+                item["r_bstr"],
+                item["b_bstr"],
+                item["r_lstr"],
+                item["b_lstr"],
+                item["r_dis"],
+                item["b_dis"],
+                item["r_cli"],
+                item["b_cli"],
+                item["r_gro"],
+                item["b_gro"],
+            )
 
-        self.cur.execute(sql, val)
-        self.con.commit()
+            self.cur.execute(sql, val)
+            self.con.commit()
+
         return item
 
 
 class UfcFighterScraperPipeline:
-    connection = {
-        "host": "",
-        "username": "mysqlAdmin",
-        "password": "",
-        "db": "thisisatest",
-    }
-
     def __init__(self):
-        self.con = mysql.connector.connect(
-            host=self.connection["host"],
-            user=self.connection["username"],
-            password=self.connection["password"],
-            database=self.connection["db"],
-        )
-        self.cur = self.con.cursor()
-        self.create_table()
+        host = os.environ.get("DB_HOST")
+        user = os.environ.get("DB_USER")
+        password = os.environ.get("DB_PASSWORD")
+        database = os.environ.get("DB_DATABASE")
+        if host != None and user != None and password != None and database != None:
+            self.con = mysql.connector.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database,
+            )
+            self.cur = self.con.cursor()
+            self.create_table()
+        else:
+            self.con = None
+            self.cur = None
 
     def create_table(self):
         self.cur.execute(
@@ -210,33 +217,35 @@ class UfcFighterScraperPipeline:
         )
 
     def process_item(self, item, spider):
-        sql = """ INSERT INTO fighters (name_,nickname,f_name,l_name,wins,loses,ties,height,weight_,reach,stance,
-        dob,age,slpm,str_ac,sapm,str_def,td_avg,td_acc,td_def,sub_avg) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        """
-        val = (
-            item["name"],
-            item["nickname"],
-            item["f_name"],
-            item["l_name"],
-            item["wins"],
-            item["loses"],
-            item["ties"],
-            item["height"],
-            item["weight"],
-            item["reach"],
-            item["stance"],
-            item["dob"],
-            item["age"],
-            item["slpm"],
-            item["str_ac"],
-            item["sapm"],
-            item["str_def"],
-            item["td_avg"],
-            item["td_acc"],
-            item["td_def"],
-            item["sub_avg"],
-        )
+        if self.con != None:
+            sql = """ INSERT INTO fighters (name_,nickname,f_name,l_name,wins,loses,ties,height,weight_,reach,stance,
+            dob,age,slpm,str_ac,sapm,str_def,td_avg,td_acc,td_def,sub_avg) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """
+            val = (
+                item["name"],
+                item["nickname"],
+                item["f_name"],
+                item["l_name"],
+                item["wins"],
+                item["loses"],
+                item["ties"],
+                item["height"],
+                item["weight"],
+                item["reach"],
+                item["stance"],
+                item["dob"],
+                item["age"],
+                item["slpm"],
+                item["str_ac"],
+                item["sapm"],
+                item["str_def"],
+                item["td_avg"],
+                item["td_acc"],
+                item["td_def"],
+                item["sub_avg"],
+            )
 
-        self.cur.execute(sql, val)
-        self.con.commit()
+            self.cur.execute(sql, val)
+            self.con.commit()
+
         return item
