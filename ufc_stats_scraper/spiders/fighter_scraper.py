@@ -82,9 +82,9 @@ class UfcFighterSpider(scrapy.Spider):
         dob = (
             stats_matrix[4][1]
             if stats_matrix[4][1] != "---" and stats_matrix[4][1] != "--"
-            else "N/A"
+            else None
         )
-        age = compute_age(dob) if dob != "N/A" else "N/A"
+        age = compute_age(dob) if dob != None else None
         slpm = (
             float(stats_matrix[5][1])
             if stats_matrix[5][1] != "---" and stats_matrix[5][1] != "--"
