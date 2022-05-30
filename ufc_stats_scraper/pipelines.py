@@ -40,6 +40,7 @@ class UfcFutureFightScraperPipeline:
         )
 
     def process_item(self, item, spider):
+        ##skip db steps if there is no connection
         if self.con != None:
             sql = """ INSERT IGNORE INTO future_fights (fighter_1,fighter_2,date_,bout,location_,event_name) VALUES (%s,%s,%s,%s,%s,%s)
             """
@@ -120,6 +121,7 @@ class UfcFightScraperPipeline:
         )
 
     def process_item(self, item, spider):
+        ##skip db steps if there is no connection]
         if self.con != None:
             sql = """ INSERT IGNORE INTO fights (r_fighter,b_fighter,r_win,b_win,wei_class,method,round_,time_,t_format,ref,
             details,r_kd,b_kd,r_sigstr,b_sigstr,r_totstr,b_totstr,r_td,b_td,r_sub,b_sub,r_rev,b_rev,r_ctrl,b_ctrl,r_hstr,b_hstr,r_bstr,
@@ -217,6 +219,7 @@ class UfcFighterScraperPipeline:
         )
 
     def process_item(self, item, spider):
+        ##skip db steps if there is no connection
         if self.con != None:
             sql = """ INSERT INTO fighters (name_,nickname,f_name,l_name,wins,loses,ties,height,weight_,reach,stance,
             dob,age,slpm,str_ac,sapm,str_def,td_avg,td_acc,td_def,sub_avg) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
