@@ -7,6 +7,11 @@ from ufc_stats_scraper.util import *
 class UfcFighterSpider(scrapy.Spider):
     name = "ufc_fighters"
     start_urls = ["http://ufcstats.com/statistics/fighters?char=a&page=all"]
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "ufc_stats_scraper.pipelines.UfcFighterScraperPipeline": 300,
+        }
+    }
 
     def parse(self, response):
         alphabetized_fighter_links = response.css(
@@ -57,68 +62,68 @@ class UfcFighterSpider(scrapy.Spider):
         height = (
             convert_feet_to_inches(stats_matrix[0][1])
             if stats_matrix[0][1] != "---" and stats_matrix[0][1] != "--"
-            else "N/A"
+            else None
         )
         weight = (
             int(stats_matrix[1][1].split(" lbs.")[0])
             if stats_matrix[1][1] != "---" and stats_matrix[1][1] != "--"
-            else "N/A"
+            else None
         )
         reach = (
             int(stats_matrix[2][1].split('"')[0])
             if stats_matrix[2][1] != "---" and stats_matrix[2][1] != "--"
-            else "N/A"
+            else None
         )
         stance = (
             stats_matrix[3][1]
             if stats_matrix[3][1] != "---" and stats_matrix[3][1] != "--"
-            else "N/A"
+            else None
         )
         dob = (
             stats_matrix[4][1]
             if stats_matrix[4][1] != "---" and stats_matrix[4][1] != "--"
-            else "N/A"
+            else None
         )
-        age = compute_age(dob) if dob != "N/A" else "N/A"
+        age = compute_age(dob) if dob != None else None
         slpm = (
             float(stats_matrix[5][1])
             if stats_matrix[5][1] != "---" and stats_matrix[5][1] != "--"
-            else "N/A"
+            else None
         )
         str_ac = (
             int(stats_matrix[6][1].replace("%", "")) / 100
             if stats_matrix[6][1] != "---" and stats_matrix[6][1] != "--"
-            else "N/A"
+            else None
         )
         sapm = (
             float(stats_matrix[7][1])
             if stats_matrix[7][1] != "---" and stats_matrix[7][1] != "--"
-            else "N/A"
+            else None
         )
         str_def = (
             int(stats_matrix[8][1].replace("%", "")) / 100
             if stats_matrix[8][1] != "---" and stats_matrix[8][1] != "--"
-            else "N/A"
+            else None
         )
         td_avg = (
             float(stats_matrix[9][1])
             if stats_matrix[9][1] != "---" and stats_matrix[9][1] != "--"
-            else "N/A"
+            else None
         )
         td_acc = (
             int(stats_matrix[10][1].replace("%", "")) / 100
             if stats_matrix[10][1] != "---" and stats_matrix[10][1] != "--"
-            else "N/A"
+            else None
         )
         td_def = (
             int(stats_matrix[11][1].replace("%", "")) / 100
             if stats_matrix[11][1] != "---" and stats_matrix[11][1] != "--"
-            else "N/A"
+            else None
         )
         sub_avg = (
             float(stats_matrix[12][1])
             if stats_matrix[12][1] != "---" and stats_matrix[12][1] != "--"
-            else "N/A"
+            else None
         )
 
         yield {
