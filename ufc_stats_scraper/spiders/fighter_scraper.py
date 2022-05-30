@@ -72,7 +72,7 @@ class UfcFighterSpider(scrapy.Spider):
         stance = (
             stats_matrix[3][1]
             if stats_matrix[3][1] != "---" and stats_matrix[3][1] != "--"
-            else "N/A"
+            else None
         )
         dob = (
             stats_matrix[4][1]

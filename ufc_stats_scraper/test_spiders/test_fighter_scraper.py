@@ -60,7 +60,7 @@ class TestUfcFighterSpider(unittest.TestCase):
         self.assertEqual(results.pop("ties"), 0)
         self.assertEqual(results.pop("height"), 66)
         self.assertEqual(results.pop("weight"), 160)
-        self.assertEqual(results.pop("reach"), "N/A")
+        self.assertEqual(results.pop("reach"), None)
         self.assertEqual(results.pop("stance"), "Orthodox")
         self.assertEqual(results.pop("dob"), "N/A")
         self.assertEqual(results.pop("age"), "N/A")
