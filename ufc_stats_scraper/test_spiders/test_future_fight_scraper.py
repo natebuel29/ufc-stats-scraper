@@ -7,7 +7,7 @@ from scrapy import Selector
 class TestUfcFutureFightSpider(unittest.TestCase):
     def setUp(self):
         self.spider = UfcFutureFightSpider()
-        self.event_context = ["test date", "test location"]
+        self.event_context = ["June, 2 2012", "test location"]
 
     def test_standard_ufc_future_fight_page(self):
         test_file = open(
@@ -27,7 +27,7 @@ class TestUfcFutureFightSpider(unittest.TestCase):
         )
         self.assertEqual(results.pop("fighter_1"), "Charles Oliveira")
         self.assertEqual(results.pop("fighter_2"), "Justin Gaethje")
-        self.assertEqual(results.pop("date"), "test date")
+        self.assertEqual(results.pop("date"), "2012-06-02")
         self.assertEqual(results.pop("location"), "test location")
         self.assertEqual(results.pop("bout"), "UFC Lightweight Title Bout")
         self.assertEqual(results.pop("event_name"), "UFC 274: Oliveira vs. Gaethje")
