@@ -1,4 +1,5 @@
 from datetime import date
+import pendulum
 
 
 def normalize_results(results):
@@ -58,3 +59,27 @@ def convert_feet_to_inches(height):
     height = height.replace('"', "")
     split_height = height.split("' ")
     return int(split_height[0]) * 12 + int(split_height[1])
+
+
+def parse_date(date):
+    month_map = {
+        "January": 1,
+        "Febuary": 2,
+        "March": 3,
+        "April": 4,
+        "May": 5,
+        "June": 6,
+        "July": 7,
+        "August": 8,
+        "September": 9,
+        "October": 10,
+        "November": 11,
+        "December": 12,
+    }
+
+    date_list = date.replace(",", "").split(" ")
+    month = month_map.get(date_list[0])
+    day = int(date_list[1])
+    year = int(date_list[2])
+
+    return pendulum.datetime(year, month, day).format("YYYY-MM-DD")

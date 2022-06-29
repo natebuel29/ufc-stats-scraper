@@ -29,7 +29,7 @@ class UfcFutureFightSpider(scrapy.Spider):
         )
 
     def parse_future_matchups(self, response, event_context):
-        date = event_context[0]
+        date = parse_date(event_context[0])
         location = event_context[1]
         event_name = normalize_results(
             response.css("h2.b-content__title a.b-link::text").getall()
